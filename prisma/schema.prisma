@@ -6,45 +6,92 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 
 
-model Type{
-  id     String @id @default(cuid())
-  name   String 
+enum HouseType {
+  APARTMENT
+  HOUSE
+  LAND
+  COMMERCIAL
+}
+
+enum Category {
+  RENT
+  SALE
+  SHORTLET
 }
 
 model User{
   id     String @id @default(cuid())
   name   String 
-  role   String @default("USER")
+  role   ROLE @default(USER)
+  email  String @unique
+  hashedPassword String
+  properties Property[]
+  bookings Booking[]
+  verified   Boolean @default(false)
 
   @@map("users")
-
 }
 
+model Booking {
+  id         String    @id @default(cuid())
+  property   Property  @relation(fields: [propertyId], references: [id])
+  propertyId String
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+  startDate  DateTime
+  endDate    DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
+  @@map("bookings")
+  @@unique([propertyId, startDate])
+}
+
+enum ROLE {
+  ADMIN
+  USER
+
+}
 
 model Property{
   id     String @id @default(cuid())
   name   String 
-  details String
+  details Json
   price   Float
+  datesBooked DateTime[]
+  isBooked Boolean @default(false)
+  location Location @relation(fields: [locationId], references: [id])
+  locationId String
+  cautionFee Float @default(0)
+  agencyFee  Float @default(0)
+  legalFee   Float @default(0)
+  bookings   Booking[]
+  houseType  HouseType
+  category   Category
+  user User @relation(fields: [userId], references: [id])
+  userId String
+
+
+  @@index([datesBooked, isBooked, locationId, houseType, category, userId])
 
   @@map("properties")
 }
 
 model Location {
-  id     String @id @default(cuid())
-  name   String 
+  id     String @id @default(cuid()) 
   address String
   city    String
   state   String
-  zip     String
   country String
+  properties Property[]
 
+
+  @@index([address, city, state])
   @@map("locations")
 }
