@@ -1,16 +1,17 @@
-import express from 'express'
+import {Request, Response} from 'express'
 
-export async function login(req: express.Request, res: express.Response){
+export async function login(req: Request, res: Response){
+    
     
 }
-export async function register(req: express.Request, res: express.Response){
+export async function register(req: Request, res: Response){
 
 }
 
-export async function forgotPassword(req: express.Request, res: express.Response){
+export async function forgotPassword(req: Request, res: Response){
 
 }
 
-export async function resetPassword(req: express.Request, res: express.Response){
+export async function resetPassword(req: Request, res: Response){
 
 }
