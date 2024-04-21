@@ -31,6 +31,7 @@ model User{
   role   ROLE @default(USER)
   email  String @unique
   hashedPassword String
+  refreshToken String?
   properties Property[]
   bookings Booking[]
   verified   Boolean @default(false)
