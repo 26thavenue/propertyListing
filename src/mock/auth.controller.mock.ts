@@ -11,15 +11,24 @@ import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 
 dotenv.config()
 
+type userRequest ={
+    name?: string,
+    email: string,
+    password: string,
+    refreshToken?:string
+}
+
+
+
 
 const secret = process.env.TOKEN_SECRET as string;
 
-export async function login(req: Request, res: Response){
-    const { email, password} = req.body
+export async function login(data:userRequest){
+    const { email, password} = data
 
     if(!email || !password ){    
         const error = new ErrorMiddleware(400, 'Email and password are required');
-        return res.status(error.status).json(error);
+        return error
     }
 
     try {
@@ -32,12 +41,12 @@ export async function login(req: Request, res: Response){
 
         if(!user){
             const error = new ErrorMiddleware(404, 'No such user exists please sign up');
-            return res.status(error.status).json(error);
+            return error.toJSON()
         }
 
         if(!compareSync(password,user.hashedPassword)){
             const error = new ErrorMiddleware(403, 'Invalid credentials');
-            return res.status(error.status).json(error);
+            return error.toJSON();
         }
 
         const accessToken = generateAccessToken(user);
@@ -52,12 +61,12 @@ export async function login(req: Request, res: Response){
             }
         })
 
-        return res.json({user , accessToken})
+        return ({user , accessToken})
 
         
     } catch (error:any) {
         console.error('Unexpected error:', error);
-        return res.json({error: 'Unexpected error'}).status(500);
+        return error.toJson()
         
     }
 
@@ -65,17 +74,17 @@ export async function login(req: Request, res: Response){
     
 }
 
-export async function register(req: Request, res: Response){
+export async function register(data:userRequest){
     
-    const {name, email, password} = req.body
+    const {name, email, password} = data
 
     if(!email || !password || !name){    
         const error = new ErrorMiddleware(400, 'Email and password are required');
-        return res.status(error.status).json(error);
+        return error.toJSON()
     }
 
     try {
-        userValidator.validate(req.body)
+        userValidator.validate(data)
 
         const checkIfUserEmailExists = await prisma.user.findFirst({
             where: {
@@ -85,7 +94,7 @@ export async function register(req: Request, res: Response){
 
         if(checkIfUserEmailExists){
             const error = new ErrorMiddleware(409, 'Email already exists');
-            return res.status(error.status).json(error);
+            return error.toJSON()
         }
 
         const user = await prisma.user.create({
@@ -96,24 +105,24 @@ export async function register(req: Request, res: Response){
             }
         })
 
-        return res.json(user)
+        return user
 
     } catch (error:any) {
         if (error instanceof ZodMiddleware) {
             console.error(`Validation Error: ${error.message}`);
         } else {
             console.error('Unexpected error:', error);
-            return res.json({error: 'Unexpected error'}).status(500);
+            return ({message: "An error occured"})
         }
     }
 }
 
-export const getNewAccessToken = async (req: Request, res: Response) => {
-    const refreshToken = req.body.refreshToken;
+export const getNewAccessToken = async (data:userRequest) => {
+    const {refreshToken }= data;
 
     if (!refreshToken) {
         const error = new ErrorMiddleware(401, 'No refresh token provided');
-        return res.json(error.message).status(error.status);
+        return error.toJSON()
     }
 
     try {
@@ -127,15 +136,15 @@ export const getNewAccessToken = async (req: Request, res: Response) => {
 
         if (!user) {
             const error = new ErrorMiddleware(401, 'Unauthorized');
-            return res.status(error.status).json(error.message);
+            return error.toJSON();
         }
 
         const accessToken = generateAccessToken(user);
 
-        return res.json({ accessToken });
+        return ({ accessToken });
     } catch (error) {
-        console.error(error)
-        return res.status(401).json({ message: 'An error occurred ' });
+        console.error('Unexpected error:', error);
+        return ({ message: 'Unauthorized' });
     }
 
 }

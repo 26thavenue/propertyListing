@@ -2,6 +2,7 @@ import express from "express";
 import cors from 'cors'
 import loggerMiddleware from "./middlewares/loggerMiddleware";
 import morgan from 'morgan'
+import { request } from "http";
 
 
 const app = express();
@@ -11,7 +12,10 @@ app.use(cors())
 
 app.use(loggerMiddleware);
 
+
 app.use(morgan('tiny'))
+
+
 
 app.use(express.json())
 

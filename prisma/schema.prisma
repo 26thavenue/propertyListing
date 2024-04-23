@@ -41,10 +41,10 @@ model User{
 
 model Booking {
   id         String    @id @default(cuid())
-  property   Property  @relation(fields: [propertyId], references: [id])
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   propertyId String
-  user       User      @relation(fields: [userId], references: [id])
-  userId     String
+  user       User      @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  buyerId     String
   startDate  DateTime
   endDate    DateTime
   createdAt  DateTime  @default(now())
@@ -63,11 +63,11 @@ enum ROLE {
 model Property{
   id     String @id @default(cuid())
   name   String 
-  details Json
+  details String[]
   price   Float
   datesBooked DateTime[]
   isBooked Boolean @default(false)
-  location Location @relation(fields: [locationId], references: [id])
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
   locationId String
   cautionFee Float @default(0)
   agencyFee  Float @default(0)
@@ -75,11 +75,15 @@ model Property{
   bookings   Booking[]
   houseType  HouseType
   category   Category
-  user User @relation(fields: [userId], references: [id])
-  userId String
+  user User @relation(fields: [ownerId], references: [id])
+  ownerId String
+  images String[] 
 
 
-  @@index([datesBooked, isBooked, locationId, houseType, category, userId])
+  @@index([locationId])
+  @@index([ownerId])
+  @@index([houseType])
+  @@index([category])
 
   @@map("properties")
 }

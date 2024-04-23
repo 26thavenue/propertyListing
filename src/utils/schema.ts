@@ -8,3 +8,4 @@ const userSchema = z.object({
 });
 
 export const userValidator= new ZodMiddleware(userSchema);
+
