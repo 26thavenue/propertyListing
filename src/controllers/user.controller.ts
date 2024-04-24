@@ -140,7 +140,7 @@ export async function getBookingsForUser(req:Request, res:Response){
         const bookingRequests = await prisma.booking.findMany({
             where: {
                 property: {
-                ownerId: userId,
+                    ownerId: userId,
                 },
             },
             include: {
