@@ -3,7 +3,65 @@ import { Property , Location, User} from '@prisma/client'
 import {Request,Response} from 'express'
 import {ErrorMiddleware} from '../middlewares/errorMiddleware'
 
+
 export async function createProperty(req:Request,res:Response){
+
+    const {name, details, price, address,  city,state, country, category, cautionFee, agencyFee, legalFee, datesBooked} = req.body
+
+    if(!name || !details || !price || !address || !city || !state || !country || !category ){
+        const error = new ErrorMiddleware(400, 'All fields are required')
+        return res.json(error.message).status(error.status)
+    }
+
+    if (!Array.isArray(req.files)) {
+      throw new Error('Files are missing in the request');
+    }
+
+    const imageUrls = req?.files?.map(file => file.path);
+
+
+    try {
+        const location = await prisma.location.create({
+            data:{
+                address:address,
+                city:city,
+                state:state,
+                country:country
+            }
+        })
+
+        const property = await prisma.property.create({
+            data:{
+                name:name,
+                details:details,
+                price:price,
+                cautionFee:cautionFee,
+                agencyFee:agencyFee,
+                legalFee:legalFee,
+                category:category,
+                location:{
+                    connect:{
+                        id:location.id
+                    }
+                },
+                imageUrls,
+                user:{
+                    connect:{
+                        id:req.user?.id
+                    }
+                }
+            }
+        })
+
+        return res.json(property).status(201)
+        
+    } catch (error) {
+        
+    }
+
+    
+
+    
    
 }
 
@@ -18,15 +76,29 @@ export async function deleteProperty(req:Request,res:Response){
 
     try {
 
+        
+
         const property = await prisma.property.findUnique({
             where:{
                 id:id
+            },include:{
+                user:true
             }
         })
+
         if(!property){
             const error = new ErrorMiddleware(400, 'Property does not exist')
             return res.json(error.message).status(error.status)
         }
+
+        if(property?.user.id !== req.user?.id || req.user?.role !== 'ADMIN'){
+            const error = new ErrorMiddleware(401, 'You are not authorized to delete this property')
+            return res.json(error.message).status(error.status)
+        }
+
+       
+
+
         await prisma.property.delete({
             where:{
                 id:id
@@ -44,7 +116,11 @@ export async function deleteProperty(req:Request,res:Response){
 }
 
 
-export async function updateProperty(req:Request,res:Response){}
+export async function updateProperty(req:Request,res:Response){
+
+}
+
+
 
 export async function getAllProperties(req:Request,res:Response){
     try {

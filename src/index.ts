@@ -2,8 +2,7 @@ import express from "express";
 import cors from 'cors'
 import loggerMiddleware from "./middlewares/loggerMiddleware";
 import morgan from 'morgan'
-import { request } from "http";
-
+import multer from "multer";
 
 const app = express();
 const port = 8080;
@@ -18,6 +17,7 @@ app.use(morgan('tiny'))
 
 
 app.use(express.json())
+
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

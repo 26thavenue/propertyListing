@@ -159,15 +159,35 @@ export async function getBookingsForUser(req:Request, res:Response){
 }
 
 export async function deleteUser(req:Request, res:Response){
-    const {id} = req.params;
+    const id = req.user?.id 
     if(!id){
         const error = new ErrorMiddleware( 400,'User ID is required')
         return res.json(error.message).status(error.status)
     }
+
+    
+
     try {
+
+        const checkUser = await prisma.user.findUnique({
+            where: {
+                id
+            }
+        })  
+
+        if(!checkUser){
+            const error = new ErrorMiddleware( 404,'User not found')
+            return res.json(error.message).status(error.status)
+        }
+
+
         await prisma.user.delete({
-            where: {id}
+            where: {
+                id
+            }
         })
+
+
         return res.json({message: 'User deleted'}).status(200)
     } catch (err:any) {
         console.log(err);

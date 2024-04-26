@@ -1,3 +1,5 @@
+import multer from 'multer';
+
 interface DateRange {
     startDate: Date;
     endDate: Date;
@@ -20,6 +22,17 @@ export function isDateRangeAvailable(startDate: Date, endDate: Date, bookedDates
 
     return true;
 }
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Destination folder where uploaded files will be stored
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname); // Rename uploaded files to avoid overwriting
+  }
+});
+
+export const upload = multer({ storage: storage });
 
 // Example usage:
 // const bookedDates: DateRange[] = [
