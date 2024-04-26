@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "STATUS" AS ENUM ('PENDING', 'APPROVED', 'DECLINED');
+
+-- AlterTable
+ALTER TABLE "bookings" ADD COLUMN     "status" "STATUS" NOT NULL DEFAULT 'PENDING';
