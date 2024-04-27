@@ -105,6 +105,7 @@ export async function updateUserEmail(req:Request, res:Response){
 
 export async function getUserBookings(req:Request, res:Response){
     const userId = req.user?.id;
+
     if(!userId){
         const error = new ErrorMiddleware(400, 'User ID is required')
         return res.json(error.message).status(error.status)
@@ -131,6 +132,8 @@ export async function getUserBookings(req:Request, res:Response){
 export async function getBookingsForUser(req:Request, res:Response){
 
     const userId = req.user?.id;
+
+
     if(!userId){
         const error = new ErrorMiddleware(400, 'User ID is required')
         return res.json(error.message).status(error.status)
@@ -160,6 +163,7 @@ export async function getBookingsForUser(req:Request, res:Response){
 
 export async function deleteUser(req:Request, res:Response){
     const id = req.user?.id 
+
     if(!id){
         const error = new ErrorMiddleware( 400,'User ID is required')
         return res.json(error.message).status(error.status)
@@ -223,9 +227,9 @@ export async function getAllUsers(req:Request, res:Response){
 }
 
 export async function verifyUser(req:Request, res:Response){
-    const {userId} = req.body
+    const id = req.params.id
 
-    if(!userId){
+    if(!id){
         const error = new ErrorMiddleware( 400,'User ID is required')
         return res.json(error.message).status(error.status)
     }
@@ -233,7 +237,9 @@ export async function verifyUser(req:Request, res:Response){
     try {
 
         const user = await prisma.user.findUnique({
-            where: {id: userId}
+            where: {
+                id
+            }
         })
 
         if(!user){
@@ -243,7 +249,7 @@ export async function verifyUser(req:Request, res:Response){
 
         await prisma.user.update({ 
             where: {
-                id: userId
+                id
             },
             data: {
                 verified: true

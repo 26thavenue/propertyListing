@@ -27,7 +27,7 @@ export async function buyProperty(req: Request, res:Response){
         return res.json(error.message).status(error.status)
     }
 
-    const {propertyId} = req.body
+    const propertyId = req.params.id
 
     if(!propertyId){
         const error = new ErrorMiddleware(400, 'Property ID is required')
@@ -93,7 +93,9 @@ export async function rentProperty(req: Request, res:Response){
         return res.json(error.message).status(error.status)
     }
 
-    const {propertyId, startDate, endDate} = req.body
+    const { startDate, endDate} = req.body
+
+    const propertyId = req.params.id
 
     if(!propertyId || !startDate || !endDate ){
         const error = new ErrorMiddleware(400, 'All fields are required')
@@ -304,61 +306,6 @@ export async function ownerRejectsBooking(req: Request, res:Response){
 
 }
 
-// export async function buyerCancelsBooking(req: Request, res:Response){
-//     const id = req.user?.id
-
-//     if(!id){
-//         const error = new ErrorMiddleware(400, 'User ID is required')
-//         return res.json(error.message).status(error.status)
-//     }
-
-//     const {bookingId}  = req.params
-
-//     try {
-//         const booking = await prisma.booking.findUnique({
-//               where:{
-//                 id:bookingId
-//               },
-//               include:{
-//                     property:{
-//                         include:{
-//                             user:true,
-                            
-//                         }
-                    
-//                     }
-//               }
-//          })
-
-//         if(!booking){
-//             const error = new ErrorMiddleware(400, 'Booking does not exist')
-//             return res.json(error.message).status(error.status)
-//         } 
-
-//         await prisma.booking.update({
-//                 where:{
-//                     id:bookingId
-//                 },
-//                 data:{
-//                     status: STATUS.PENDING
-//                 }
-//             })
-
-//         return res.json({message:'Your booking was cancelled'}).status(400)
-
-//         } catch (err:any) {
-//         console.error(err)
-//         const error = new ErrorMiddleware(500, err.toString())
-//         return res.json(error.message).status(error.status)
-//     }
-// }
-
-
-// export async function ownerAcceptsDeclinedBooking(req: Request, res:Response){
-
-
-
-// }
 
 export async function getBookings(req: Request, res:Response){
     const bookings = await prisma.booking.findMany();
@@ -400,6 +347,50 @@ export async function getBooking(req: Request, res:Response){
         
     }
 
+}
+
+export async function deleteBooking(req: Request, res: Response){
+    const {id} = req.params
+
+    if(!id){
+        const error = new ErrorMiddleware(400, 'Booking ID is required')
+        return res.json(error.message).status(error.status)
+    }
+
+    try {
+        const booking = await prisma.booking.findUnique({
+            where:{
+                id
+            }
+        })
+
+        if(!booking){
+            const error = new ErrorMiddleware(400, 'Booking does not exist')
+            return res.json(error.message).status(error.status)
+        }
+
+        const user = await prisma.user.findUnique({
+            where:{
+                id:booking.buyerId
+            }
+        })
+
+        if(req.user?.id !== booking.buyerId || user?.role !== 'ADMIN'){
+            return res.json({message:'You are not authorized to delete this booking'}).status(401)
+        }
+
+        await prisma.booking.delete({
+            where:{
+                id:id
+            }
+        })
+
+        return res.json({message:'Booking deleted'}).status(200)
+    } catch (err:any) {
+        console.error(err)
+        const error = new ErrorMiddleware(500, err.toString())
+        return res.json(error.message).status(error.status)
+    }
 }
 
 

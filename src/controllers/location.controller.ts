@@ -1,4 +1,3 @@
-import { Location } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
 import {Request,Response} from 'express'
@@ -17,7 +16,7 @@ export async function getAllLocations(req: Request, res: Response){
 }
 
 export async function getLocationsInState(req: Request, res: Response){
-    const state = req.params.state;
+    const state = req.query.state as string;
 
     if(!state){
         const error = new ErrorMiddleware(400, 'State is required');
@@ -38,7 +37,7 @@ export async function getLocationsInState(req: Request, res: Response){
 }
 
 export async function getLocationsInACountry(req: Request, res: Response){
-    const country = req.params.country;
+    const country = req.query.country as string;
 
     if(!country){
         const error = new ErrorMiddleware(400, 'Country is required');
@@ -59,7 +58,7 @@ export async function getLocationsInACountry(req: Request, res: Response){
 }
 
 export async function getAllLocationsInACity(req:Request, res:Response){
-    const city = req.params.city;
+     const city = req.query.city as string;
 
     if(!city){
         const error = new ErrorMiddleware(400, 'City is required');
