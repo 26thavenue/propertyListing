@@ -23,5 +23,7 @@ router.use('/property', propertyRouter)
 
 router.use('/user', userRouter)
 
+export default router
+
 
 
