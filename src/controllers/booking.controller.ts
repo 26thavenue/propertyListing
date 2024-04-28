@@ -3,13 +3,13 @@ import { STATUS,Category} from '@prisma/client'
 import {Request, Response} from 'express'
 import { ErrorMiddleware } from '../middlewares/errorMiddleware'
 import { isDateRangeAvailable } from '../utils/utils'
+import * as emailService from '../service/sendEmail'
+
 
 interface DateRange {
     startDate: Date;
     endDate: Date;
 }
-
-type DateOrDateRange = Date | DateRange;
 
 
 export async function buyProperty(req: Request, res:Response){
@@ -38,6 +38,8 @@ export async function buyProperty(req: Request, res:Response){
         const property = await prisma.property.findUnique({
             where:{
                 id:propertyId
+            },include:{
+                user:true
             }
         })
 
@@ -62,10 +64,24 @@ export async function buyProperty(req: Request, res:Response){
             }
         })
 
+        const buyerNotification = await prisma.notification.create({
+            data:{
+                userId:id,
+                message:`You have made a booking request for ${property.name}`
+            }
+        })
+
+        const sellerNotification = await prisma.notification.create({
+            data:{
+                userId:property?.ownerId,
+                message:`You have a booking request for ${property.name}`
+            }
+        })
+        
+        emailService.sendBuyerBookingEmail(req.user?.email as string, property.category, property.name, property?.user?.email)
+        emailService.sendSellerBookingEmail(property?.user?.email,property.category,property.name,req.user?.email as string)
+
         return res.json(booking).status(201)
-
-
-        // sendEmail()
 
         
     } catch (err:any) {
@@ -107,9 +123,17 @@ export async function rentProperty(req: Request, res:Response){
         const property = await prisma.property.findUnique({
             where:{
                 id:propertyId
-        }
+            },
+            include:{
+                user:true
+            }
 
         })
+
+        if(!property){
+            const error = new ErrorMiddleware(400, 'Property does not exist')
+            return res.json(error.message).status(error.status)
+        }
 
         const propertyCategory = property?.category as Category
 
@@ -133,10 +157,25 @@ export async function rentProperty(req: Request, res:Response){
             }
         })
 
+        const buyerNotification = await prisma.notification.create({
+            data:{
+                userId:id,
+                message:`You have made a booking request for ${property.name}`
+            }
+        })
+
+        const sellerNotification = await prisma.notification.create({
+            data:{
+                userId:property?.ownerId,
+                message:`You have a booking request for ${property.name}`
+            }
+        })
+        
+        emailService.sendBuyerBookingEmail(req.user?.email as string, property.category, property.name, property?.user?.email)
+        emailService.sendSellerBookingEmail(property?.user?.email,property.category,property.name,req.user?.email as string)
+
         return res.json(booking).status(201)
 
-
-        // sendEmail()
         
     } catch (err:any) {
         console.error(err)
@@ -170,7 +209,7 @@ export async function ownerAcceptsBooking(req: Request, res:Response){
                             
                         }
                     
-                    }
+                    },user:true
               }
          }) 
 
@@ -207,9 +246,22 @@ export async function ownerAcceptsBooking(req: Request, res:Response){
                 }
             })
 
-            // MAKE PAYMENTS
+        const buyerNotification = await prisma.notification.create({
+            data:{
+                userId:booking.buyerId,
+                message:`Your booking for ${property?.name} has been accepted`
+            }
+        })
 
-            return res.json({updatedBooking, property}).status(201)
+        const sellerNotification  = await prisma.notification.create({
+            data:{
+                userId:booking.property.ownerId,
+                message:`You have accepted a booking for ${property?.name}`
+            }
+        })
+        emailService.sendBuyerBookingAcceptedEmail(booking.user.email, property.category, property.name, booking.property.user.email, booking.user.email)
+
+        return res.json({updatedBooking, property}).status(201)
         }
         else if(property?.category == 'RENT' || property?.category == 'SHORTLET') {
             const dateRange: DateRange = {
@@ -235,7 +287,21 @@ export async function ownerAcceptsBooking(req: Request, res:Response){
                 }
             })
 
-            // MAKE PAYMENTS
+             const buyerNotification = await prisma.notification.create({
+                data:{
+                    userId:booking.buyerId,
+                    message:`Your booking for ${property?.name} has been accepted`
+                }
+            })
+
+            const sellerNotification  = await prisma.notification.create({
+                data:{
+                    userId:booking.property.ownerId,
+                    message:`You have accepted a booking for ${property?.name}`
+                }
+            })
+
+            emailService.sendBuyerBookingAcceptedEmail(booking.user.email, property.category, property.name, booking.property.user.email, booking.user.email)
 
             return res.json({updatedBooking, property}).status(201)
 
@@ -274,7 +340,8 @@ export async function ownerRejectsBooking(req: Request, res:Response){
                             
                         }
                     
-                    }
+                    },
+                    user:true
               }
          })
 
@@ -291,6 +358,22 @@ export async function ownerRejectsBooking(req: Request, res:Response){
                     status: STATUS.DECLINED
                 }
             })
+
+         const buyerNotification = await prisma.notification.create({
+            data:{
+                userId:booking.buyerId,
+                message:`Your booking for ${booking.property?.name} has been declined`
+            }
+        })
+
+        const sellerNotification  = await prisma.notification.create({
+            data:{
+                userId:booking.property.ownerId,
+                message:`You declined a request for ${booking.property?.name}`
+            }
+        })
+
+        emailService.sendBuyerBookingRejectionEmail(booking.user.email , booking.property.category, booking.property.name, booking.property.user.email)
 
         return res.json({message:'Your booking was rejected'}).status(400)
 

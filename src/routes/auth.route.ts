@@ -2,9 +2,11 @@ import { Router } from "express";
 import  * as authController from '../controllers/auth.controller'
 
 
-const router:Router = Router()
+const authRouter:Router = Router()
 
-router.post('/login', authController.login)
-router.post('/register', authController.register)
+authRouter.post('/login', authController.login)
+authRouter.post('/register', authController.register)
 
+
+export default authRouter
 

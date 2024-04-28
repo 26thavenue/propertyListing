@@ -6,14 +6,15 @@ import {authMiddleware }from '../middlewares/authMiddleware'
 
 import { upload } from '../utils/utils'
 
-const router = express.Router()
+const propertyRouter = express.Router()
 
-router.get('/', authMiddleware,propertyController.getAllProperties)
+propertyRouter.get('/', authMiddleware,propertyController.getAllProperties)
 
-router.post('/', [authMiddleware, upload.array('images', 5)],propertyController.createProperty)
+propertyRouter.post('/', [authMiddleware, upload.array('images', 5)],propertyController.createProperty)
 
-router.get('/:id', authMiddleware,propertyController.getPropertyById)
+propertyRouter.get('/:id', authMiddleware,propertyController.getPropertyById)
 
-router.put('/:id', authMiddleware,propertyController.updateProperty)
 
-router.delete('/:id', authMiddleware,propertyController.deleteProperty)
+propertyRouter.delete('/:id', authMiddleware,propertyController.deleteProperty)
+
+export default propertyRouter

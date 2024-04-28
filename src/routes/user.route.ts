@@ -7,20 +7,23 @@ import {authMiddleware }from '../middlewares/authMiddleware'
 import { adminMiddleware } from '../middlewares/adminMiddleware'
 
 
-const router = express.Router()
+const userRouter = express.Router()
 
-router.get('/', authMiddleware,userController.getAllUsers)
+userRouter.get('/', authMiddleware,userController.getAllUsers)
 
-router.get('/', authMiddleware,userController.getBookingsForUser)
+userRouter.get('/bookings/user', authMiddleware,userController.getBookingsForUser)
 
-router.get('/', authMiddleware,userController.getUserBookings)
+userRouter.get('/user/bookings', authMiddleware,userController.getUserBookings)
 
-router.get('/:id', authMiddleware,userController.getOneUser)
+userRouter.get('/:id', authMiddleware,userController.getOneUser)
 
-router.put('/:id', authMiddleware,userController.updateUserDetails)
+userRouter.put('/:id', authMiddleware,userController.updateUserDetails)
 
-router.delete('/', authMiddleware,userController.deleteUser)
+userRouter.delete('/', authMiddleware,userController.deleteUser)
 
-router.put('/:id', authMiddleware,userController.updateUserEmail)
+// userRouter.put('/email/:id', authMiddleware,userController.updateUserEmail)
 
-router.put('/:id', [authMiddleware, adminMiddleware],userController.verifyUser)
+userRouter.put('/verify/:id', [authMiddleware, adminMiddleware],userController.verifyUser)
+
+
+export default userRouter

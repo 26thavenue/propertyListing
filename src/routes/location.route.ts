@@ -6,14 +6,16 @@ import {authMiddleware }from '../middlewares/authMiddleware'
 
 
 
-const router = express.Router()
+const locationRouter = express.Router()
 
-router.get('/', authMiddleware,locationControler.getAllLocations)
+locationRouter.get('/', authMiddleware,locationControler.getAllLocations)
 
-router.get('/', authMiddleware,locationControler.getAllLocationsInACity)
+locationRouter.get('/city', authMiddleware,locationControler.getAllLocationsInACity)
 
-router.get('/',authMiddleware, locationControler.getLocationsInACountry)
+locationRouter.get('/country',authMiddleware, locationControler.getLocationsInACountry)
 
-router.get('/',authMiddleware, locationControler.getLocationsInState)
+locationRouter.get('/state',authMiddleware, locationControler.getLocationsInState)
 
-router.get('/:id',authMiddleware, locationControler.getLocationById)
+locationRouter.get('/:id',authMiddleware, locationControler.getLocationById)
+
+export default locationRouter

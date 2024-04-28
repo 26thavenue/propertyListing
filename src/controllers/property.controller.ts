@@ -116,10 +116,6 @@ export async function deleteProperty(req:Request,res:Response){
 }
 
 
-export async function updateProperty(req:Request,res:Response){
-
-}
-
 
 
 export async function getAllProperties(req:Request,res:Response){

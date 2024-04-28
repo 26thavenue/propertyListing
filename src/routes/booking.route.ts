@@ -6,19 +6,21 @@ import {authMiddleware }from '../middlewares/authMiddleware'
 
 import { adminMiddleware } from '../middlewares/adminMiddleware'
 
-const router = express.Router()
+const bookingRouter = express.Router()
 
-router.get('/', [authMiddleware],bookingController.getBookings)
+bookingRouter.get('/', [authMiddleware],bookingController.getBookings)
 
-router.get('/:id', [authMiddleware],bookingController.getBooking)
+bookingRouter.get('/:id', [authMiddleware],bookingController.getBooking)
 
-router.get('/:id', [authMiddleware],bookingController.ownerAcceptsBooking)
+bookingRouter.get('/owner/accept/:id', [authMiddleware],bookingController.ownerAcceptsBooking)
 
-router.get('/:id', [authMiddleware],bookingController.ownerRejectsBooking)
+bookingRouter.get('/owner/reject/:id', [authMiddleware],bookingController.ownerRejectsBooking)
 
-router.post('/:id', [authMiddleware],bookingController.buyProperty)
+bookingRouter.post('/buy/:id', [authMiddleware],bookingController.buyProperty)
 
-router.post('/:id', [authMiddleware],bookingController.rentProperty)
+bookingRouter.post('/rent/:id', [authMiddleware],bookingController.rentProperty)
 
-router.delete('/:id', [authMiddleware, adminMiddleware], bookingController.deleteBooking)
+bookingRouter.delete('/:id', [authMiddleware, adminMiddleware], bookingController.deleteBooking)
+
+export default bookingRouter
 
