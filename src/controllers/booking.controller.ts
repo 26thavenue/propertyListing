@@ -13,12 +13,7 @@ interface DateRange {
 
 
 export async function buyProperty(req: Request, res:Response){
-    // CHECK IF PROPERTY EXISTS
-    // CHECK IF PROPERTY IS OF CATEGORY BUY
-    // CHECK IF PROPERTY IS AVAILABLE
-    // CREATE A BOOKING
-    // GET OWNER DETAILS
-    // SEND EMAIL AND PUSH NOTIFICATIONS TO OWNER 
+
 
     const id = req.user?.id
 

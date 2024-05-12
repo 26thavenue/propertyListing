@@ -1,0 +1,8 @@
+{"level":"info","message":"GET / ::1","timestamp":"2024-05-11T10:31:14.497Z"}
+{"level":"info","message":"GET / ::1","timestamp":"2024-05-11T10:32:21.696Z"}
+{"level":"info","message":"POST /api/auth/login ::1","timestamp":"2024-05-11T10:33:08.556Z"}
+{"level":"info","message":"POST /api/auth/login ::1","timestamp":"2024-05-11T10:34:46.859Z"}
+{"level":"info","message":"POST /api/auth/login ::1","timestamp":"2024-05-11T15:06:39.733Z"}
+{"level":"info","message":"POST /api/auth/login ::1","timestamp":"2024-05-11T15:10:11.154Z"}
+{"level":"info","message":"POST /api/auth/login ::1","timestamp":"2024-05-11T15:11:04.633Z"}
+{"level":"info","message":"POST /api/auth/login undefined","timestamp":"2024-05-11T15:12:01.092Z"}

@@ -15,7 +15,8 @@ dotenv.config()
 const secret = process.env.TOKEN_SECRET as string;
 
 export async function login(req: Request, res: Response){
-    const { email, password} = req.body
+    // console.log(req.body)
+    const { email, password } = req.body 
 
     if(!email || !password ){    
         const error = new ErrorMiddleware(400, 'Email and password are required');
@@ -42,6 +43,7 @@ export async function login(req: Request, res: Response){
 
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
+        console.log(refreshToken)
 
         await prisma.user.update({
             where: {
@@ -52,7 +54,7 @@ export async function login(req: Request, res: Response){
             }
         })
 
-        return res.json({user , accessToken})
+        return res.json({user , refreshToken,accessToken})
 
         
     } catch (error:any) {
@@ -75,7 +77,12 @@ export async function register(req: Request, res: Response){
     }
 
     try {
-        userValidator.validate(req.body)
+        const {status, message} = userValidator.validate(req.body)
+
+        if(status && message){
+            const error = new ErrorMiddleware(400, message);
+            return res.status(error.status).json(error);
+        }
 
         const checkIfUserEmailExists = await prisma.user.findFirst({
             where: {
@@ -109,7 +116,7 @@ export async function register(req: Request, res: Response){
 }
 
 export const getNewAccessToken = async (req: Request, res: Response) => {
-    const refreshToken = req.body.refreshToken;
+    const refreshToken = req.user?.refreshToken;
 
     if (!refreshToken) {
         const error = new ErrorMiddleware(401, 'No refresh token provided');

@@ -1,12 +1,11 @@
 import {prisma} from '../utils/prisma'
-import { Property , Location, User} from '@prisma/client'
 import {Request,Response} from 'express'
 import {ErrorMiddleware} from '../middlewares/errorMiddleware'
 
 
 export async function createProperty(req:Request,res:Response){
 
-    const {name, details, price, address,  city,state, country, category, cautionFee, agencyFee, legalFee, datesBooked} = req.body
+    const {name, details, price, address,  city,state, country, category, cautionFee, agencyFee, legalFee} = req.body
 
     if(!name || !details || !price || !address || !city || !state || !country || !category ){
         const error = new ErrorMiddleware(400, 'All fields are required')
@@ -14,7 +13,8 @@ export async function createProperty(req:Request,res:Response){
     }
 
     if (!Array.isArray(req.files)) {
-      throw new Error('Files are missing in the request');
+      const error = new ErrorMiddleware(400, 'Images are required')
+      return res.status(error.status).json({message:error.message})
     }
 
     const imageUrls = req?.files?.map(file => file.path);
@@ -55,7 +55,11 @@ export async function createProperty(req:Request,res:Response){
 
         return res.json(property).status(201)
         
-    } catch (error) {
+    } catch (err:any) {
+
+        console.error(err)
+        const error = new ErrorMiddleware(500, 'Internal Server Error')
+        return res.status(error.status).json(error.message)
         
     }
 
@@ -114,8 +118,6 @@ export async function deleteProperty(req:Request,res:Response){
     }
 
 }
-
-
 
 
 export async function getAllProperties(req:Request,res:Response){

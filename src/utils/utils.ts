@@ -33,15 +33,3 @@ const storage = multer.diskStorage({
 });
 
 export const upload = multer({ storage: storage });
-
-// Example usage:
-// const bookedDates: DateRange[] = [
-//     { startDate: new Date('2024-04-05'), endDate: new Date('2024-04-10') },
-//     { startDate: new Date('2024-04-15'), endDate: new Date('2024-04-20') }
-// ];
-
-// const startDate = new Date('2024-04-01');
-// const endDate = new Date('2024-04-03');
-
-// const isAvailable = isDateRangeAvailable(startDate, endDate, bookedDates);
-// console.log(isAvailable); /
